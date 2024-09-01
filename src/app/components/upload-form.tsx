@@ -91,8 +91,8 @@ export default function UploadForm() {
 			className="py-8 px-4 rounded-2xl w-96 min-h-32 shadow-xl border-2 border-solid border-gray-300/30"
 			onSubmit={handleUpload}
 		>
-			<h2 className="text-2xl text-center font-bold text-indigo-500 mb-2">Quickly upload a file!</h2>
-			<p className="text-center mb-8">Quickly and securely share a file to another person or device!</p>
+			<h1 className="text-2xl text-center font-bold text-indigo-500 mb-2">Quickly upload a file!</h1>
+			<h2 className="text-center mb-8">Quickly and securely share a file to another person or device!</h2>
 
 			{formError && <p className="text-red-500 text-sm font-medium mb-4">{formError}</p>}
 
