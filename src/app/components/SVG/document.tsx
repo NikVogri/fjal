@@ -1,4 +1,4 @@
-export const DocumentIcon = () => {
+export const DocumentIcon = ({ size }: { size: number }) => {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -6,7 +6,7 @@ export const DocumentIcon = () => {
 			viewBox="0 0 24 24"
 			strokeWidth={1.5}
 			stroke="white"
-			className="size-8 bg-indigo-500 rounded mb-2 p-1 mx-auto"
+			className={`size-${size ?? 6} bg-indigo-500 rounded p-1`}
 		>
 			<path
 				strokeLinecap="round"

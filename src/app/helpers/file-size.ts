@@ -5,5 +5,5 @@ export function formatFileSize(bytes: number): string {
 	const i = Math.floor(Math.log(bytes) / Math.log(1024));
 	const fileSize = bytes / Math.pow(1024, i);
 
-	return `${fileSize.toFixed(2)} ${sizes[i]}`;
+	return `${fileSize.toFixed(2)}${sizes[i]}`;
 }
