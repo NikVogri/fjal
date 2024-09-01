@@ -133,8 +133,9 @@ export default function UploadForm() {
 			)}
 
 			<p className="italic text-gray-500 mt-8 text-xs">
-				The uploaded file is temporary and can only be downloaded once. It will be deleted after download or
-				automatically after 7 days.
+				<strong>Important:</strong> This is not a permanent file storage solution. The uploaded file is
+				temporary and can only be downloaded once. It will be deleted after download or automatically after 7
+				days.
 			</p>
 		</form>
 	);
