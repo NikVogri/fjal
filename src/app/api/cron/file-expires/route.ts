@@ -2,7 +2,13 @@ import s3 from "@/core/s3";
 import db from "@/core/db";
 import { DeleteObjectsCommand } from "@aws-sdk/client-s3";
 
-export async function POST(_: Request) {
+export async function POST(req: Request) {
+	const token = (req.headers.get("authorization") ?? "").split(" ")[1];
+
+	if (!token || token != process.env.CRON_SECRET) {
+		return Response.json({ error: "Invalid or missing token" }, { status: 403 });
+	}
+
 	try {
 		const expiredFiles = await db.file.findMany({
 			where: {
