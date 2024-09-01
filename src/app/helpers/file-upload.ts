@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { fileInfoSchema, PostUploadLinkResponse } from "../api/upload-link/route";
+import { PostUploadLinkResponse } from "../api/upload-link/route";
+import { fileInfoSchema } from "../schemas";
 
 export async function getPresignedData(file: File): Promise<PostUploadLinkResponse> {
 	const res = await fetch("/api/upload-link", {

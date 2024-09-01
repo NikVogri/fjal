@@ -1,15 +1,9 @@
 import s3 from "@/core/s3";
 
 import { createPresignedPost, PresignedPost } from "@aws-sdk/s3-presigned-post";
-import z from "zod";
 import { ulid } from "ulid";
 import db from "@/core/db";
-
-export const fileInfoSchema = z.object({
-	title: z.string().min(1).max(1024),
-	size: z.number().positive(),
-	type: z.string().max(1024),
-});
+import { fileInfoSchema } from "@/app/schemas";
 
 export interface PostUploadLinkResponse {
 	presigned: PresignedPost;
