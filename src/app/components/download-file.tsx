@@ -37,10 +37,11 @@ export default function DownloadFile({
 
 	return (
 		<Card>
-			<div className="flex gap-3">
+			<div className="flex justify-center mb-2">
 				<DocumentIcon size={8} />
-				<h1 className="font-medium text-2xl text-indigo-500 text-center mb-4">{file.fileName}</h1>
 			</div>
+
+			<h1 className="font-medium text-xl text-indigo-500 text-center mb-4">{file.fileName}</h1>
 
 			<ul className="mb-8">
 				<li>
@@ -66,7 +67,11 @@ export default function DownloadFile({
 								return;
 							}
 
-							window?.open(data);
+							const anchor = document.createElement("a");
+							anchor.href = data;
+							document.body.appendChild(anchor);
+							anchor.click();
+							document.body.removeChild(anchor);
 							setDownloaded(true);
 						})
 					}

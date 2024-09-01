@@ -23,7 +23,7 @@ export default async function Home({ params }: { params: { fileId: string } }) {
 					<div className="mb-8 text-center">
 						<h2 className="text-4xl text-indigo-500 font-bold">404</h2>
 						<p className="text-lg text-indigo-500 font-medium mb-4">File not found</p>
-						<p>The requested file does not exist, has expired or was already opened.</p>
+						<p>The requested file does not exist, has expired or was already downloaded.</p>
 					</div>
 
 					<p className="text-center">
