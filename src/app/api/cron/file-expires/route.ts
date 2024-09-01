@@ -2,7 +2,7 @@ import s3 from "@/core/s3";
 import db from "@/core/db";
 import { DeleteObjectsCommand } from "@aws-sdk/client-s3";
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
 	const token = (req.headers.get("authorization") ?? "").split(" ")[1];
 
 	if (!token || token != process.env.CRON_SECRET) {
