@@ -114,7 +114,10 @@ export default function UploadForm() {
 						<div className="mb-4 flex flex-col items-center">
 							<DocumentIcon size={8} />
 						</div>
-						<h1 className="font-medium text-lg text-indigo-500 text-center mb-8">{file.name}</h1>
+
+						<h1 className="font-medium text-lg text-indigo-500 text-center mb-8 break-all text-wrap">
+							{file.name}
+						</h1>
 
 						<button
 							type="submit"

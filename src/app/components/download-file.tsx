@@ -41,7 +41,9 @@ export default function DownloadFile({
 				<DocumentIcon size={8} />
 			</div>
 
-			<h1 className="font-medium text-xl text-indigo-500 text-center mb-4">{file.fileName}</h1>
+			<h1 className="font-medium text-xl text-indigo-500 text-center mb-4 break-all text-wrap">
+				{file.fileName}
+			</h1>
 
 			<ul className="mb-8">
 				<li>
