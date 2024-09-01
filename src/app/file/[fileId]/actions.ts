@@ -19,7 +19,7 @@ export const createDownloadUrlAndMarkFileForDeletion = async (
 		await s3.send(
 			new GetObjectCommand({
 				Bucket: process.env.AWS_S3_BUCKET!,
-				Key: file.id + "burek",
+				Key: file.id,
 			})
 		);
 
@@ -27,7 +27,7 @@ export const createDownloadUrlAndMarkFileForDeletion = async (
 
 		const cmd = new GetObjectCommand({
 			Bucket: process.env.AWS_S3_BUCKET!,
-			Key: file.id + "burek",
+			Key: file.id,
 			ResponseContentDisposition: `attachment; filename ="${file.fileName}"`,
 		});
 		const url = await getSignedUrl(s3, cmd, { expiresIn: 900 });
