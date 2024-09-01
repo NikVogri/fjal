@@ -44,14 +44,6 @@ export default async function Home({ params }: { params: { fileId: string } }) {
 				file={file}
 				createDownloadUrlAndMarkFileForDeletion={createDownloadUrlAndMarkFileForDeletion.bind(null, file)}
 			/>
-
-			<p className="my-5 w-96">
-				Created by Nik Vogrinec. Visit{" "}
-				<a href="https://nikvogrinec.com" className="text-indigo-800">
-					nikvogrinec.com
-				</a>{" "}
-				for more!
-			</p>
 		</div>
 	);
 }
