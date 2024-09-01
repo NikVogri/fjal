@@ -41,7 +41,7 @@ export default function UploadProcessing() {
 
 	return (
 		<Card>
-			<h2 className="text-2xl text-center font-bold text-indigo-500">Your file is being uploaded!</h2>
+			<h1 className="text-2xl text-center font-bold text-indigo-500">Your file is being uploaded!</h1>
 
 			<div className="my-8 text-center">
 				<div
@@ -50,8 +50,8 @@ export default function UploadProcessing() {
 				></div>
 			</div>
 
-			<h3 className="text-lg text-center my-2 text-indigo-700">While you wait, here&apos;s a fun fact:</h3>
-			<p className="text-xs italic text-gray-500 text-center">{fact}</p>
+			<p className="text-md font-medium text-center text-indigo-500">While you wait, here&apos;s a fun fact:</p>
+			<p className="text-sm italic text-gray-500 text-center">{fact}</p>
 		</Card>
 	);
 }

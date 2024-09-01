@@ -94,7 +94,7 @@ export default function UploadForm() {
 			<h2 className="text-2xl text-center font-bold text-indigo-500 mb-2">Quickly upload a file!</h2>
 			<p className="text-center mb-8">Quickly and securely share a file to another person or device!</p>
 
-			{formError && <p className="text-red-500 text-sm font-bold mb-4">{formError}</p>}
+			{formError && <p className="text-red-500 text-sm font-medium mb-4">{formError}</p>}
 
 			{!file && (
 				<label className="mb-4 block cursor-pointer">

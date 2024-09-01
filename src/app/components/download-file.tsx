@@ -4,22 +4,44 @@ import Link from "next/link";
 import { formatFileSize } from "../helpers/file-size";
 import { DocumentIcon } from "./SVG/document";
 import { DownloadIcon } from "./SVG/download";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { File } from "@prisma/client";
+import Card from "./UI/Card";
+import { CreateDownloadUrlAndMarkFileForDeletionReturn } from "../file/[fileId]/actions";
 
 export default function DownloadFile({
 	file,
 	createDownloadUrlAndMarkFileForDeletion,
 }: {
-	file: any;
-	createDownloadUrlAndMarkFileForDeletion: () => Promise<string>;
+	file: File;
+	createDownloadUrlAndMarkFileForDeletion: () => Promise<CreateDownloadUrlAndMarkFileForDeletionReturn>;
 }) {
-	const router = useRouter();
+	const [downloaded, setDownloaded] = useState<boolean>(false);
+	const [error, setError] = useState<string | null>(null);
+
+	if (error) {
+		return (
+			<Card>
+				<div className="text-center">
+					<p className="mb-4">{error}</p>
+
+					<p className="text-center">
+						<Link href="/" className="text-indigo-500">
+							Upload another file
+						</Link>
+					</p>
+				</div>
+			</Card>
+		);
+	}
 
 	return (
-		<div className="py-12 px-4 rounded-2xl w-96 min-h-32 shadow-xl border-2 border-solid border-gray-300/30">
-			<DocumentIcon />
+		<Card>
+			<div className="flex gap-3">
+				<DocumentIcon size={8} />
+				<h1 className="font-medium text-2xl text-indigo-500 text-center mb-4">{file.fileName}</h1>
+			</div>
 
-			<h1 className="font-medium text-2xl text-indigo-500 text-center mb-4">{file.fileName}</h1>
 			<ul className="mb-8">
 				<li>
 					<strong>Type:</strong> {file.type}
@@ -35,22 +57,30 @@ export default function DownloadFile({
 				</li>
 			</ul>
 
-			<button
-				onClick={() =>
-					createDownloadUrlAndMarkFileForDeletion().then((url) => {
-						window?.open(url);
-						router.replace("/");
-					})
-				}
-				className="px-4 py-2 font-bold mx-auto text-white rounded bg-indigo-500 flex gap-3 justify-center"
-			>
-				<DownloadIcon />
-				Download now
-			</button>
+			<div className="my-4">
+				<button
+					onClick={() =>
+						createDownloadUrlAndMarkFileForDeletion().then(({ isError, data }) => {
+							if (isError) {
+								setError(data);
+								return;
+							}
 
-			<p className="italic text-xs text-gray-500 my-4 text-center">
-				The file will be deleted after clicking the download button.
-			</p>
+							window?.open(data);
+							setDownloaded(true);
+						})
+					}
+					disabled={downloaded}
+					className="py-2 w-full mx-auto text-white rounded bg-indigo-500 flex gap-3 justify-center disabled:opacity-50"
+				>
+					<DownloadIcon />
+					Download now
+				</button>
+
+				<p className="italic text-xs text-gray-500 mt-2 text-center">
+					The file will be deleted after clicking the download button.
+				</p>
+			</div>
 
 			<p className="text-center">
 				Go to{" "}
@@ -59,6 +89,6 @@ export default function DownloadFile({
 				</Link>{" "}
 				instead.
 			</p>
-		</div>
+		</Card>
 	);
 }

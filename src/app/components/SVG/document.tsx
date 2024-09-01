@@ -1,4 +1,4 @@
-export const DocumentIcon = ({ size }: { size: number }) => {
+export const DocumentIcon = ({ size }: { size?: number }) => {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
