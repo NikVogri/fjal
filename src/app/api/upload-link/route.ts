@@ -4,6 +4,8 @@ import { createPresignedPost, PresignedPost } from "@aws-sdk/s3-presigned-post";
 import { ulid } from "ulid";
 import db from "@/core/db";
 import { fileInfoSchema } from "@/app/schemas";
+import { ratelimit } from "@/core/ratelimiter";
+import { NextRequest } from "next/server";
 
 export interface PostUploadLinkResponse {
 	presigned: PresignedPost;
@@ -16,7 +18,14 @@ export interface PostUploadLinkResponse {
 	};
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+	const { success } = await ratelimit.limit((request.ip ?? "127.0.0.1") + "-upload");
+	if (!success)
+		return Response.json(
+			{ message: "You've hit the daily file upload limit. Try again tomorrow." },
+			{ status: 429 }
+		);
+
 	const { data: body, error } = fileInfoSchema.safeParse(await request.json());
 
 	if (error || body.size > parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!))

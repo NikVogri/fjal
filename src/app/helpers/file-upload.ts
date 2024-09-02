@@ -15,8 +15,9 @@ export async function getPresignedData(file: File): Promise<PostUploadLinkRespon
 		},
 	});
 
-	if (!res.ok) throw Error();
-	return await res.json();
+	const data = await res.json();
+	if (!res.ok) throw Error(data.message);
+	return data;
 }
 
 export async function uploadFile(presigned: PostUploadLinkResponse["presigned"], file: File) {
