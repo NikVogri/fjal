@@ -16,7 +16,7 @@ export interface CreateDownloadUrlAndMarkFileForDeletionReturn {
 export const createDownloadUrlAndMarkFileForDeletion = async (
 	file: File
 ): Promise<CreateDownloadUrlAndMarkFileForDeletionReturn> => {
-	const id = headers().get("x-forwarded-for") ?? "127.0.0.1" + "-download";
+	const id = (headers().get("x-forwarded-for") ?? "127.0.0.1") + "-download";
 	const { success } = await ratelimit.limit(id);
 	console.log("success", success, id);
 	if (!success)

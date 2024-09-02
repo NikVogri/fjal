@@ -19,7 +19,7 @@ export interface PostUploadLinkResponse {
 }
 
 export async function POST(request: NextRequest) {
-	const { success } = await ratelimit.limit((request.ip ?? "127.0.0.1") + "-upload");
+	const { success } = await ratelimit.limit((request.headers.get("x-forwarded-for") ?? "127.0.0.1") + "-upload");
 	if (!success)
 		return Response.json(
 			{ message: "You've hit the daily file upload limit. Try again tomorrow." },
