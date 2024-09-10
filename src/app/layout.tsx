@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Logo from "./components/UI/logo";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -64,7 +65,10 @@ export default function RootLayout({
 					></div>
 				</div>
 
-				<main className="h-screen w-full z-10 relative">{children}</main>
+				<main className="h-screen w-full z-10 relative">
+					<Logo />
+					{children}
+				</main>
 			</body>
 		</html>
 	);
