@@ -10,6 +10,7 @@ import { formatFileSize } from "../helpers/file-size";
 import { getPresignedData, uploadFile } from "../helpers/file-upload";
 import { DocumentIcon } from "./SVG/document";
 import Card from "./UI/Card";
+import Link from "next/link";
 
 export default function UploadForm() {
 	const [error, setError] = useState<string | null>("");
@@ -80,11 +81,11 @@ export default function UploadForm() {
 	}
 
 	if (uploadStatus?.status === "done") {
-		return <UploadDone fileId={uploadStatus.fileInfo!.id} onUploadAnother={handleReset} />;
+		return <UploadDone id={uploadStatus.fileInfo!.id} type="file" onUploadAnother={handleReset} />;
 	}
 
 	if (uploadStatus?.status === "uploding") {
-		return <UploadProcessing />;
+		return <UploadProcessing type="file" />;
 	}
 
 	return (
@@ -140,6 +141,12 @@ export default function UploadForm() {
 					7 days.
 				</p>
 			</form>
+
+			<p className="text-center">
+				<Link href="/text" className="text-indigo-500 text-sm">
+					Share text instead
+				</Link>
+			</p>
 		</Card>
 	);
 }

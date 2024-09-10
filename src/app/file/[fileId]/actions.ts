@@ -7,15 +7,9 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { File } from "@prisma/client";
 import { ratelimit } from "@/core/ratelimiter";
 import { headers } from "next/headers";
+import { ServerActionResponse } from "@/models";
 
-export interface CreateDownloadUrlAndMarkFileForDeletionReturn {
-	isError: boolean;
-	data: string;
-}
-
-export const createDownloadUrlAndMarkFileForDeletion = async (
-	file: File
-): Promise<CreateDownloadUrlAndMarkFileForDeletionReturn> => {
+export const createDownloadUrlAndMarkFileForDeletion = async (file: File): Promise<ServerActionResponse> => {
 	const id = (headers().get("x-forwarded-for") ?? "127.0.0.1") + "-download";
 	const { success } = await ratelimit.limit(id);
 	console.log("success", success, id);

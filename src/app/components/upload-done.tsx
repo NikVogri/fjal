@@ -1,11 +1,17 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Checkmark } from "./SVG/checkmark";
-import { File } from "@prisma/client";
 import QrCode from "qrcode";
 import Card from "./UI/Card";
 
-export default function UploadDone({ fileId, onUploadAnother }: { fileId: File["id"]; onUploadAnother: () => void }) {
+interface UploadDoneProps {
+	id: string;
+	type: "file" | "text";
+	onUploadAnother: () => void;
+}
+
+export default function UploadDone({ id, type, onUploadAnother }: UploadDoneProps) {
 	const [copied, setCopied] = useState(false);
+	const url = `${window.location.origin}/${type}/${id}`;
 
 	useEffect(() => {
 		let copiedTimeout: NodeJS.Timeout;
@@ -20,26 +26,34 @@ export default function UploadDone({ fileId, onUploadAnother }: { fileId: File["
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	useLayoutEffect(() => {
-		if (canvasRef.current && fileId) QrCode.toCanvas(canvasRef.current, `${window.location.origin}/file/${fileId}`);
-	}, [canvasRef, fileId]);
+		if (canvasRef.current && id) QrCode.toCanvas(canvasRef.current, url);
+	}, [canvasRef, id, url]);
 
-	const handleCopyFileUrlToClipboard = () => {
-		navigator.clipboard.writeText(`${window.location.origin}/file/${fileId}`);
+	const handleCopyUrlToClipboard = () => {
+		navigator.clipboard.writeText(url);
 		setCopied(true);
 	};
 
 	return (
 		<Card>
 			<Checkmark />
-			<h2 className="text-2xl text-center font-medium text-indigo-500 mb-4">File uploaded!</h2>
+			<h2 className="text-2xl text-center font-medium text-indigo-500 mb-4">
+				{type === "file" && "File uploaded!"}
+				{type === "text" && "Text stored!"}
+			</h2>
 			<p className="text-center mb-8 text-md">
-				The uploaded file is temporary and can only be downloaded once. It will be deleted after download or
-				automatically after 7 days.
+				{type === "file" &&
+					`The uploaded file is temporary and can only be downloaded once. It will be deleted after download or
+				automatically after 7 days.`}
+
+				{type === "text" &&
+					`Text is stored temporarily and can only be viewed once. It will be deleted after it's viewed or
+				automatically after 7 days.`}
 			</p>
 			<canvas ref={canvasRef} className="w-full mx-auto my-8"></canvas>
 			<button
 				className="bg-indigo-500 text-white w-full p-2 rounded disabled:opacity-50 mb-3"
-				onClick={handleCopyFileUrlToClipboard}
+				onClick={handleCopyUrlToClipboard}
 				disabled={copied}
 			>
 				{copied ? "URL Copied" : "Copy URL"}
@@ -47,8 +61,9 @@ export default function UploadDone({ fileId, onUploadAnother }: { fileId: File["
 
 			<div className="text-center">
 				<button type="button" onClick={onUploadAnother} className="text-gray-400  text-center font-medium">
-					Upload another file
-				</button>{" "}
+					{type === "file" && "Upload another file"}
+					{type === "text" && "Share another text"}
+				</button>
 			</div>
 		</Card>
 	);

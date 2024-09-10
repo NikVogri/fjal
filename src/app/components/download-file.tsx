@@ -7,14 +7,14 @@ import { DownloadIcon } from "./SVG/download";
 import { useState } from "react";
 import { File } from "@prisma/client";
 import Card from "./UI/Card";
-import { CreateDownloadUrlAndMarkFileForDeletionReturn } from "../file/[fileId]/actions";
+import { ServerActionResponse } from "../file/[fileId]/actions";
 
 export default function DownloadFile({
 	file,
 	createDownloadUrlAndMarkFileForDeletion,
 }: {
 	file: File;
-	createDownloadUrlAndMarkFileForDeletion: () => Promise<CreateDownloadUrlAndMarkFileForDeletionReturn>;
+	createDownloadUrlAndMarkFileForDeletion: () => Promise<ServerActionResponse>;
 }) {
 	const [downloaded, setDownloaded] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
@@ -28,6 +28,10 @@ export default function DownloadFile({
 					<p className="text-center">
 						<Link href="/" className="text-indigo-500">
 							Upload another file
+						</Link>{" "}
+						or{" "}
+						<Link href="/text" className="text-indigo-500">
+							Share text
 						</Link>
 					</p>
 				</div>
