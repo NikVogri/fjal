@@ -2,8 +2,17 @@
 import { ServerActionResponse } from "@/models";
 import db from "@/core/db";
 import { decrypt } from "@/app/helpers/encryption";
+import { checkRateLimitByIp } from "@/app/helpers/check-ratelimit";
+import { headers } from "next/headers";
 
 export async function viewText(textId: string): Promise<ServerActionResponse> {
+	const ratelimitResponse = await checkRateLimitByIp({
+		ip: headers().get("x-forwarded-for")!,
+		type: "text",
+		action: "download",
+	});
+	if (ratelimitResponse.isError) return ratelimitResponse;
+
 	const text = await db.text.findFirst({
 		where: {
 			id: textId,

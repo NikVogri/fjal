@@ -5,10 +5,18 @@ import { encrypt, generateIv } from "../helpers/encryption";
 import { storeTextSchema } from "../schemas";
 import db from "@/core/db";
 import { ServerActionResponse } from "@/models";
+import { checkRateLimitByIp } from "../helpers/check-ratelimit";
+import { headers } from "next/headers";
 
 export async function storeText(payload: { text: string }): Promise<ServerActionResponse> {
-	const { success, error, data } = storeTextSchema.safeParse(payload);
+	const ratelimitResponse = await checkRateLimitByIp({
+		ip: headers().get("x-forwarded-for")!,
+		type: "text",
+		action: "upload",
+	});
+	if (ratelimitResponse.isError) return ratelimitResponse;
 
+	const { success, error, data } = storeTextSchema.safeParse(payload);
 	if (!success) {
 		return {
 			data: JSON.stringify(error.format()),
