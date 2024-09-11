@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { UploadIcon } from "./SVG/upload-icon";
 import UploadProcessing from "./upload-processing";
 import UploadError from "./upload-error";
 import Card from "./UI/card";
