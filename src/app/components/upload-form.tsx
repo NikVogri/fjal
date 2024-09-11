@@ -9,7 +9,7 @@ import UploadError from "./upload-error";
 import { formatFileSize } from "../helpers/file-size";
 import { getPresignedData, uploadFile } from "../helpers/file-upload";
 import { DocumentIcon } from "./SVG/document";
-import Card from "./UI/Card";
+import Card from "./UI/card";
 import Link from "next/link";
 
 export default function UploadForm() {

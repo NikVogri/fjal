@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Card from "./UI/Card";
+import Card from "./UI/card";
 
 const facts = [
 	"Bananas are berries, but strawberries aren't!",

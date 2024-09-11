@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { UploadIcon } from "./SVG/upload-icon";
 import UploadProcessing from "./upload-processing";
 import UploadError from "./upload-error";
-import Card from "./UI/Card";
+import Card from "./UI/card";
 import { storeText } from "../text/actions";
 import UploadDone from "./upload-done";
 import Link from "next/link";

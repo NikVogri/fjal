@@ -1,7 +1,7 @@
 import DownloadFile from "@/app/components/download-file";
 import db from "@/core/db";
 import { createDownloadUrlAndMarkFileForDeletion } from "./actions";
-import Card from "@/app/components/UI/Card";
+import Card from "@/app/components/UI/card";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";

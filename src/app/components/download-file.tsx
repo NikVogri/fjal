@@ -6,7 +6,7 @@ import { DocumentIcon } from "./SVG/document";
 import { DownloadIcon } from "./SVG/download";
 import { useState } from "react";
 import { File } from "@prisma/client";
-import Card from "./UI/Card";
+import Card from "./UI/card";
 import { ServerActionResponse } from "../file/[fileId]/actions";
 
 export default function DownloadFile({

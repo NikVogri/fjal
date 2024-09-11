@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Checkmark } from "./SVG/checkmark";
 import QrCode from "qrcode";
-import Card from "./UI/Card";
+import Card from "./UI/card";
 
 interface UploadDoneProps {
 	id: string;

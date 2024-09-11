@@ -1,5 +1,5 @@
 import db from "@/core/db";
-import Card from "@/app/components/UI/Card";
+import Card from "@/app/components/UI/card";
 import Link from "next/link";
 import { viewText } from "./actions";
 import TextView from "@/app/components/text-view";

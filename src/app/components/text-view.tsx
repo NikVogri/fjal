@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Card from "./UI/Card";
+import Card from "./UI/card";
 import { ServerActionResponse } from "@/models";
 import { TextIcon } from "./SVG/text";
 
