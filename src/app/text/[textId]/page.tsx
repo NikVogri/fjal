@@ -16,7 +16,7 @@ export default async function Home({ params }: { params: { textId: string } }) {
 	});
 
 	if (!text) {
-		return <ItemNotFound type="file" />;
+		return <ItemNotFound type="text" />;
 	}
 
 	return (

@@ -7,7 +7,10 @@ export default function ItemNotFound({ type }: { type: "file" | "text" }) {
 			<Card>
 				<div className="mb-8 text-center">
 					<h2 className="text-4xl text-indigo-500 font-bold">404</h2>
-					<p className="text-lg text-indigo-500 font-medium mb-4">File not found</p>
+					<p className="text-lg text-indigo-500 font-medium mb-4">
+						{type === "file" && `File not found`}
+						{type === "text" && "Text not found"}
+					</p>
 					<p>
 						{type === "file" && `The requested file does not exist, has expired or was already downloaded.`}
 						{type === "text" && `The requested text does not exist, has expired or was already viewed.`}
