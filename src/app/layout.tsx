@@ -5,8 +5,8 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const metadataTitle = "Fjal - Quickly Share Files";
-const metatadaDescription = "Quickly and securely share a file to another person or device!";
+const metadataTitle = "Fjal - Quickly Share Between Devices";
+const metatadaDescription = "Quickly and securely share a file or text to another person or device!";
 export const metadata: Metadata = {
 	title: metadataTitle,
 	description: metatadaDescription,
@@ -19,6 +19,10 @@ export const metadata: Metadata = {
 		"share files between devices",
 		"share files between people",
 		"temporary file storage",
+		"share text between devices",
+		"share text between people",
+		"safely share text",
+		"encrypted text share",
 	],
 
 	other: {
