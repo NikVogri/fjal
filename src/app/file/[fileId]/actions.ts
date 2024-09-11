@@ -4,33 +4,36 @@ import s3 from "@/core/s3";
 import db from "@/core/db";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { File } from "@prisma/client";
-import { ratelimit } from "@/core/ratelimiter";
+import { ServerActionResponse } from "@/models";
+import { checkRateLimitByIp } from "@/app/helpers/check-ratelimit";
 import { headers } from "next/headers";
-
-export interface CreateDownloadUrlAndMarkFileForDeletionReturn {
-	isError: boolean;
-	data: string;
-}
+import { fileDownloadSchema } from "@/app/schemas";
+import { z } from "zod";
 
 export const createDownloadUrlAndMarkFileForDeletion = async (
-	file: File
-): Promise<CreateDownloadUrlAndMarkFileForDeletionReturn> => {
-	const id = (headers().get("x-forwarded-for") ?? "127.0.0.1") + "-download";
-	const { success } = await ratelimit.limit(id);
-	console.log("success", success, id);
-	if (!success)
+	payload: z.infer<typeof fileDownloadSchema>
+): Promise<ServerActionResponse> => {
+	const ratelimitResponse = await checkRateLimitByIp({
+		ip: headers().get("x-forwarded-for")!,
+		type: "file",
+		action: "download",
+	});
+	if (ratelimitResponse.isError) return ratelimitResponse;
+
+	const { success, data } = fileDownloadSchema.safeParse(payload);
+	if (!success) {
 		return {
-			data: "You've hit the daily file download limit. Try again tomorrow.",
 			isError: true,
+			data: "Invalid or missing data.",
 		};
+	}
 
 	try {
 		// Check if object even exists in S3
 		await s3.send(
 			new GetObjectCommand({
 				Bucket: process.env.AWS_S3_BUCKET!,
-				Key: file.id,
+				Key: data.id,
 			})
 		);
 
@@ -38,14 +41,14 @@ export const createDownloadUrlAndMarkFileForDeletion = async (
 
 		const cmd = new GetObjectCommand({
 			Bucket: process.env.AWS_S3_BUCKET!,
-			Key: file.id,
-			ResponseContentDisposition: `attachment; filename ="${file.fileName}"`,
+			Key: data.id,
+			ResponseContentDisposition: `attachment; filename ="${data.fileName}"`,
 		});
 		const url = await getSignedUrl(s3, cmd, { expiresIn: 900 });
 
 		await db.file.update({
 			where: {
-				id: file.id,
+				id: data.id,
 			},
 			data: {
 				expiresAt: new Date(),

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Card from "./UI/Card";
+import Card from "./UI/card";
 
 const facts = [
 	"Bananas are berries, but strawberries aren't!",
@@ -31,7 +31,16 @@ function getRandomFact() {
 	return facts[factIdx];
 }
 
-export default function UploadProcessing() {
+const text: Record<UploadProcessingProps["type"], string> = {
+	file: "Your file is being uploaded!",
+	text: "Your text is being encrypted and stored!",
+};
+
+interface UploadProcessingProps {
+	type: "file" | "text";
+}
+
+export default function UploadProcessing({ type }: UploadProcessingProps) {
 	const [fact, setFact] = useState(getRandomFact());
 
 	useEffect(() => {
@@ -41,7 +50,7 @@ export default function UploadProcessing() {
 
 	return (
 		<Card>
-			<h1 className="text-2xl text-center font-bold text-indigo-500">Your file is being uploaded!</h1>
+			<h1 className="text-2xl text-center font-bold text-indigo-500">{text[type]}</h1>
 
 			<div className="my-8 text-center">
 				<div

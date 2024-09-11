@@ -21,3 +21,12 @@ model File {
   createdAt DateTime @default(now()) @db.Timestamp(6)
   expiresAt DateTime @db.Timestamp(6)
 }
+
+model Text {
+  id        String   @id @unique
+  text      String   @db.VarChar(2560)
+  iv        String   @db.VarChar(255)
+  length    Int 
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  expiresAt DateTime @db.Timestamp(6)
+}

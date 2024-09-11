@@ -3,6 +3,10 @@
 		{
 			"path": "/api/cron/file-expires",
 			"schedule": "0 10 * * *"
+		},
+		{
+			"path": "/api/cron/text-expires",
+			"schedule": "0 10 * * *"
 		}
 	]
 }

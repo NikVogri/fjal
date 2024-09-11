@@ -1,4 +1,4 @@
-import Card from "./UI/Card";
+import Card from "./UI/card";
 
 export default function UploadError({ error }: { error: string }) {
 	return (
