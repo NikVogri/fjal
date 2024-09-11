@@ -1,7 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Checkmark } from "./SVG/checkmark";
 import QrCode from "qrcode";
 import Card from "./UI/card";
+import { useCopyTimeout } from "../hooks/useCopyTimeout";
 
 interface UploadDoneProps {
 	id: string;
@@ -10,29 +11,18 @@ interface UploadDoneProps {
 }
 
 export default function UploadDone({ id, type, onUploadAnother }: UploadDoneProps) {
-	const [copied, setCopied] = useState(false);
 	const url = `${window.location.origin}/${type}/${id}`;
 
-	useEffect(() => {
-		let copiedTimeout: NodeJS.Timeout;
-
-		if (copied) {
-			copiedTimeout = setTimeout(() => setCopied(false), 1500);
-		}
-
-		return () => clearTimeout(copiedTimeout);
-	}, [copied]);
+	const { onCopy, copied } = useCopyTimeout(() => {
+		navigator.clipboard.writeText(url);
+		return true;
+	});
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	useLayoutEffect(() => {
 		if (canvasRef.current && id) QrCode.toCanvas(canvasRef.current, url);
 	}, [canvasRef, id, url]);
-
-	const handleCopyUrlToClipboard = () => {
-		navigator.clipboard.writeText(url);
-		setCopied(true);
-	};
 
 	return (
 		<Card>
@@ -53,7 +43,7 @@ export default function UploadDone({ id, type, onUploadAnother }: UploadDoneProp
 			<canvas ref={canvasRef} className="w-full mx-auto my-8"></canvas>
 			<button
 				className="bg-indigo-500 text-white w-full p-2 rounded disabled:opacity-50 mb-3"
-				onClick={handleCopyUrlToClipboard}
+				onClick={onCopy}
 				disabled={copied}
 			>
 				{copied ? "URL Copied" : "Copy URL"}

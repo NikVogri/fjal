@@ -1,26 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Card from "./UI/card";
 import { ServerActionResponse } from "@/models";
 import { TextIcon } from "./SVG/text";
+import { useCopyTimeout } from "../hooks/useCopyTimeout";
 
 export default function TextView({ viewText }: { viewText: () => Promise<ServerActionResponse> }) {
 	const [viewed, setViewed] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	const [text, setText] = useState<string | null>(null);
-	const [copied, setCopied] = useState(false);
 
-	useEffect(() => {
-		let copiedTimeout: NodeJS.Timeout;
+	const { onCopy, copied } = useCopyTimeout(() => {
+		if (!text) return false;
 
-		if (copied) {
-			copiedTimeout = setTimeout(() => setCopied(false), 1500);
-		}
-
-		return () => clearTimeout(copiedTimeout);
-	}, [copied]);
+		navigator.clipboard.writeText(text);
+		return true;
+	});
 
 	if (error) {
 		return (
@@ -42,13 +39,6 @@ export default function TextView({ viewText }: { viewText: () => Promise<ServerA
 		);
 	}
 
-	const handleCopyText = () => {
-		if (!text) return;
-
-		navigator.clipboard.writeText(text);
-		setCopied(true);
-	};
-
 	return (
 		<Card>
 			<div className="flex justify-center mb-2">
@@ -67,7 +57,7 @@ export default function TextView({ viewText }: { viewText: () => Promise<ServerA
 						></textarea>
 
 						<button
-							onClick={handleCopyText}
+							onClick={onCopy}
 							disabled={copied}
 							className="py-2 w-full mx-auto text-white rounded bg-indigo-500 flex gap-3 justify-center disabled:opacity-50"
 						>
