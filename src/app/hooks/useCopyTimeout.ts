@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export const useCopyTimeout = (fn: () => boolean) => {
-	const [copied, setCopied] = useState<boolean>(true);
+	const [copied, setCopied] = useState<boolean>(false);
 
 	useEffect(() => {
 		let copiedTimeout: NodeJS.Timeout;
