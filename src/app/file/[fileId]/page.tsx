@@ -23,7 +23,10 @@ export default async function Home({ params }: { params: { fileId: string } }) {
 		<div className="h-screen w-full flex flex-col items-center justify-center">
 			<DownloadFile
 				file={file}
-				createDownloadUrlAndMarkFileForDeletion={createDownloadUrlAndMarkFileForDeletion.bind(null, file)}
+				createDownloadUrlAndMarkFileForDeletion={createDownloadUrlAndMarkFileForDeletion.bind(null, {
+					fileName: file.fileName,
+					id: file.id,
+				})}
 			/>
 		</div>
 	);

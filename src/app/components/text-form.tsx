@@ -10,7 +10,6 @@ import Link from "next/link";
 
 export default function TextForm() {
 	const [error, setError] = useState<string | null>("");
-	const [formError, setFormError] = useState<string | null>("");
 	const [text, setText] = useState<string>("");
 	const [uploadStatus, setUploadStatus] = useState<{
 		status: "uploding" | "done" | "none";
@@ -25,7 +24,7 @@ export default function TextForm() {
 
 		if (text.length > parseInt(process.env.NEXT_PUBLIC_MAX_TEXT_LENGTH!)) {
 			alert(
-				`Text is too long. Make sure it contains fewer than ${process.env.NEXT_PUBLIC_MAX_TEXT_LENGT} characters`
+				`Text is too long. Make sure it contains fewer than ${process.env.NEXT_PUBLIC_MAX_TEXT_LENGT} characters.`
 			);
 
 			return;
@@ -33,19 +32,18 @@ export default function TextForm() {
 
 		try {
 			setUploadStatus({ status: "uploding" });
-			const { data, isError } = await storeText({ text });
-			if (isError) throw data;
+			const res = await storeText({ text: text });
+			if (res.isError) throw res;
 
-			setUploadStatus({ status: "done", textInfo: { id: data } });
+			setUploadStatus({ status: "done", textInfo: { id: res.data } });
 			setText("");
 		} catch (err: any) {
-			setError(err.message || "Something unexpected went wrong. Please try again later.");
+			setError(err.data || "Something unexpected went wrong. Please try again later.");
 		}
 	};
 
 	const handleReset = () => {
 		setText("");
-		setFormError(null);
 		setUploadStatus({ status: "none" });
 		setError(null);
 	};
@@ -73,11 +71,16 @@ export default function TextForm() {
 				<textarea
 					name="text"
 					rows={6}
-					className="mb-4 block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "
+					className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "
 					placeholder="Write the text you want to share here..."
 					onChange={(e) => setText(e.target.value)}
 					value={text}
+					maxLength={parseInt(process.env.NEXT_PUBLIC_MAX_TEXT_LENGTH!)}
 				></textarea>
+
+				<span className="text-xs italic mb-4 mt-2 text-gray-400 text-right block">
+					{text.length}/{process.env.NEXT_PUBLIC_MAX_TEXT_LENGTH}
+				</span>
 
 				<button
 					type="submit"

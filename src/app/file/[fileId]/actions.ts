@@ -4,12 +4,15 @@ import s3 from "@/core/s3";
 import db from "@/core/db";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { File } from "@prisma/client";
 import { ServerActionResponse } from "@/models";
 import { checkRateLimitByIp } from "@/app/helpers/check-ratelimit";
 import { headers } from "next/headers";
+import { fileDownloadSchema } from "@/app/schemas";
+import { z } from "zod";
 
-export const createDownloadUrlAndMarkFileForDeletion = async (file: File): Promise<ServerActionResponse> => {
+export const createDownloadUrlAndMarkFileForDeletion = async (
+	payload: z.infer<typeof fileDownloadSchema>
+): Promise<ServerActionResponse> => {
 	const ratelimitResponse = await checkRateLimitByIp({
 		ip: headers().get("x-forwarded-for")!,
 		type: "file",
@@ -17,12 +20,20 @@ export const createDownloadUrlAndMarkFileForDeletion = async (file: File): Promi
 	});
 	if (ratelimitResponse.isError) return ratelimitResponse;
 
+	const { success, data } = fileDownloadSchema.safeParse(payload);
+	if (!success) {
+		return {
+			isError: true,
+			data: "Invalid or missing data.",
+		};
+	}
+
 	try {
 		// Check if object even exists in S3
 		await s3.send(
 			new GetObjectCommand({
 				Bucket: process.env.AWS_S3_BUCKET!,
-				Key: file.id,
+				Key: data.id,
 			})
 		);
 
@@ -30,14 +41,14 @@ export const createDownloadUrlAndMarkFileForDeletion = async (file: File): Promi
 
 		const cmd = new GetObjectCommand({
 			Bucket: process.env.AWS_S3_BUCKET!,
-			Key: file.id,
-			ResponseContentDisposition: `attachment; filename ="${file.fileName}"`,
+			Key: data.id,
+			ResponseContentDisposition: `attachment; filename ="${data.fileName}"`,
 		});
 		const url = await getSignedUrl(s3, cmd, { expiresIn: 900 });
 
 		await db.file.update({
 			where: {
-				id: file.id,
+				id: data.id,
 			},
 			data: {
 				expiresAt: new Date(),

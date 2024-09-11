@@ -16,10 +16,10 @@ export async function storeText(payload: { text: string }): Promise<ServerAction
 	});
 	if (ratelimitResponse.isError) return ratelimitResponse;
 
-	const { success, error, data } = storeTextSchema.safeParse(payload);
+	const { success, data } = storeTextSchema.safeParse(payload);
 	if (!success) {
 		return {
-			data: JSON.stringify(error.format()),
+			data: "Invalid or missing data",
 			isError: true,
 		};
 	}

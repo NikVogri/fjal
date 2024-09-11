@@ -21,7 +21,7 @@ export default async function Home({ params }: { params: { textId: string } }) {
 
 	return (
 		<div className="h-screen w-full flex flex-col items-center justify-center">
-			<TextView viewText={viewText.bind(null, text.id)} />
+			<TextView viewText={viewText.bind(null, { textId: text.id })} />
 		</div>
 	);
 }
