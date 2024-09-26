@@ -2,25 +2,54 @@
 
 import { ulid } from "ulid";
 import { encrypt, generateIv } from "../helpers/encryption";
-import { storeTextSchema } from "../schemas";
 import db from "@/core/db";
-import { ServerActionResponse } from "@/models";
 import { checkRateLimitByIp } from "../helpers/check-ratelimit";
 import { headers } from "next/headers";
+import { z } from "zod";
 
-export async function storeText(payload: { text: string }): Promise<ServerActionResponse> {
+const storeTextSchema = z.object({
+	text: z
+		.string({ message: "Text is missing" })
+		.trim()
+		.min(1, { message: "Text should be at least 1 character long" })
+		.max(parseInt(process.env.NEXT_PUBLIC_MAX_TEXT_LENGTH!), {
+			message: "Text should be maximum ${process.env.NEXT_PUBLIC_MAX_TEXT_LENGTH!} characters long",
+		}),
+});
+
+export interface StoreTextFormState {
+	isError: boolean;
+	errors: {
+		text?: string[];
+		other?: string[];
+	};
+	data?: {
+		id: string;
+	};
+}
+
+export async function storeText(_: StoreTextFormState, fd: FormData): Promise<StoreTextFormState> {
 	const ratelimitResponse = await checkRateLimitByIp({
 		ip: headers().get("x-forwarded-for")!,
 		type: "text",
 		action: "upload",
 	});
-	if (ratelimitResponse.isError) return ratelimitResponse;
+	if (ratelimitResponse.isError) {
+		return {
+			isError: true,
+			errors: {
+				other: ["You've created too many texts for today. Please try again tomorrow."],
+			},
+		};
+	}
 
-	const { success, data } = storeTextSchema.safeParse(payload);
+	const { success, data, error } = storeTextSchema.safeParse(Object.fromEntries(fd));
 	if (!success) {
 		return {
-			data: "Invalid or missing data",
 			isError: true,
+			errors: {
+				text: error.flatten().fieldErrors.text,
+			},
 		};
 	}
 
@@ -40,7 +69,10 @@ export async function storeText(payload: { text: string }): Promise<ServerAction
 	});
 
 	return {
-		data: id,
 		isError: false,
+		errors: {},
+		data: {
+			id,
+		},
 	};
 }
