@@ -14,30 +14,29 @@ import UploadProcessing from "./upload-processing";
 import UploadError from "./upload-error";
 import { useAction } from "next-safe-action/hooks";
 import { generatePresignedUrl } from "../file/actions";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function FileUploadForm() {
 	const [error, setError] = useState<string | null>(null);
 
 	const { executeAsync: generatePresignedUrlAction, result, reset: resetAction } = useAction(generatePresignedUrl);
-	const form = useForm();
 
-	const file: File[] = form.watch("file");
-	const selectedFile = file?.[0];
+	const form = useForm<{ file: File }>({
+		resolver: zodResolver(
+			z.object({
+				file: z
+					.instanceof(File)
+					.refine((file) => file.size <= parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!), {
+						message: `File size is too large! Please make sure the file is under ${formatFileSize(
+							parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!)
+						)}!`,
+					}),
+			})
+		),
+	});
 
-	useEffect(() => {
-		if (selectedFile && selectedFile.size > parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!)) {
-			form.setError("file", {
-				message: `File size is too large! Please make sure the file is under ${formatFileSize(
-					parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!)
-				)}!`,
-			});
-			form.setValue("file", undefined);
-		}
-	}, [selectedFile, form]);
-
-	const handleSubmit = async (data: { file: File[] }) => {
-		const file = data.file[0];
-
+	const handleSubmit = async ({ file }: { file: File }) => {
 		try {
 			const res = await generatePresignedUrlAction({
 				fileName: file.name,
@@ -64,6 +63,13 @@ export default function FileUploadForm() {
 		setError(null);
 	};
 
+	useEffect(() => {
+		const subscription = form.watch(({ file }) => {
+			if (file) form.trigger(["file"]);
+		});
+		return () => subscription.unsubscribe();
+	}, [form]);
+
 	if (!form.formState.isSubmitting && error) {
 		return <UploadError error={error} onRetry={handleReset} />;
 	}
@@ -79,15 +85,16 @@ export default function FileUploadForm() {
 	return (
 		<Card>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit((data) => handleSubmit(data as { file: File[] }))}>
+				<form onSubmit={form.handleSubmit(handleSubmit)}>
 					<h1 className="text-2xl text-center font-bold text-indigo-500 mb-2">Quickly upload a file!</h1>
 					<h2 className="text-center mb-8">Quickly and securely share a file to another person or device!</h2>
 
 					<FormField
 						name="file"
-						render={() => (
+						control={form.control}
+						render={({ field: { value, onChange, ...fieldProps } }) => (
 							<>
-								{!selectedFile && (
+								{!form.formState.isValid && (
 									<FormItem>
 										<FormMessage />
 										<FormLabel className="bg-indigo-500 text-white w-full py-3 rounded disabled:opacity-30 disabled:cursor-default flex justify-center gap-3 mx-auto cursor-pointer">
@@ -95,12 +102,13 @@ export default function FileUploadForm() {
 										</FormLabel>
 										<FormControl>
 											<input
-												{...form.register("file", {
-													required: "File is required",
-												})}
+												{...fieldProps}
 												type="file"
 												className="w-full border border-solid rounded border-indigo-800 p-2 mb-4"
 												hidden
+												onChange={(event) =>
+													onChange(event.target.files && event.target.files[0])
+												}
 											/>
 										</FormControl>
 										<FormDescription>
@@ -109,20 +117,19 @@ export default function FileUploadForm() {
 									</FormItem>
 								)}
 
-								{selectedFile && (
+								{form.formState.isValid && form.getValues("file") && (
 									<div className="mb-8">
 										<div className="mb-4 flex flex-col items-center">
 											<DocumentIcon size={8} />
 										</div>
 
 										<h1 className="font-medium text-lg text-indigo-500 text-center mb-8 break-all text-wrap">
-											{selectedFile.name}
+											{form.getValues("file").name}
 										</h1>
 
 										<button
 											type="submit"
 											className="bg-indigo-500 mb-3 text-white w-full p-2 rounded disabled:opacity-30 disabled:cursor-default flex justify-center gap-3 mx-auto"
-											disabled={!form.formState.isValid || form.formState.isSubmitting}
 										>
 											<UploadIcon />
 											Upload
@@ -131,7 +138,7 @@ export default function FileUploadForm() {
 										<button
 											type="button"
 											className="block mx-auto text-gray-400 font-medium"
-											onClick={form.reset}
+											onClick={handleReset}
 										>
 											Select other file
 										</button>
