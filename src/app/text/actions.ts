@@ -2,45 +2,47 @@
 
 import { ulid } from "ulid";
 import { encrypt, generateIv } from "../helpers/encryption";
-import { storeTextSchema } from "../schemas";
 import db from "@/core/db";
-import { ServerActionResponse } from "@/models";
 import { checkRateLimitByIp } from "../helpers/check-ratelimit";
 import { headers } from "next/headers";
+import { actionClient, ActionError } from "@/core/safe-action";
+import { flattenValidationErrors } from "next-safe-action";
+import { storeTextSchema } from "../schemas";
 
-export async function storeText(payload: { text: string }): Promise<ServerActionResponse> {
-	const ratelimitResponse = await checkRateLimitByIp({
-		ip: headers().get("x-forwarded-for")!,
-		type: "text",
-		action: "upload",
-	});
-	if (ratelimitResponse.isError) return ratelimitResponse;
+export const storeText = actionClient
+	.schema(storeTextSchema, {
+		handleValidationErrorsShape: (ve) => flattenValidationErrors(ve).fieldErrors,
+	})
+	.use(async ({ next }) => {
+		const ratelimitResponse = await checkRateLimitByIp({
+			ip: headers().get("x-forwarded-for")!,
+			type: "text",
+			action: "upload",
+		});
 
-	const { success, data } = storeTextSchema.safeParse(payload);
-	if (!success) {
+		if (ratelimitResponse.isError) {
+			throw new ActionError(ratelimitResponse.data);
+		}
+
+		return next();
+	})
+	.action(async ({ parsedInput: { text } }) => {
+		const iv = generateIv();
+		const encryptedText = encrypt(text, iv, process.env.TEXT_ENCRYPTION_SECRET_KEY!);
+
+		const id = ulid();
+
+		await db.text.create({
+			data: {
+				id: id,
+				length: text.length,
+				text: encryptedText,
+				iv: iv.toString("hex"),
+				expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+			},
+		});
+
 		return {
-			data: "Invalid or missing data",
-			isError: true,
+			id,
 		};
-	}
-
-	const iv = generateIv();
-	const encryptedText = encrypt(data.text, iv, process.env.TEXT_ENCRYPTION_SECRET_KEY!);
-
-	const id = ulid();
-
-	await db.text.create({
-		data: {
-			id: id,
-			length: data.text.length,
-			text: encryptedText,
-			iv: iv.toString("hex"),
-			expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-		},
 	});
-
-	return {
-		data: id,
-		isError: false,
-	};
-}

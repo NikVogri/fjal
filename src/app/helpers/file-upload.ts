@@ -1,26 +1,6 @@
-import { z } from "zod";
-import { PostUploadLinkResponse } from "../api/upload-link/route";
-import { fileInfoSchema } from "../schemas";
+import { PresignedPost } from "@aws-sdk/s3-presigned-post";
 
-export async function getPresignedData(file: File): Promise<PostUploadLinkResponse> {
-	const res = await fetch("/api/upload-link", {
-		method: "POST",
-		body: JSON.stringify({
-			title: file.name,
-			size: file.size,
-			type: file.type,
-		} satisfies z.infer<typeof fileInfoSchema>),
-		headers: {
-			Accept: "application/json",
-		},
-	});
-
-	const data = await res.json();
-	if (!res.ok) throw Error(data.message);
-	return data;
-}
-
-export async function uploadFile(presigned: PostUploadLinkResponse["presigned"], file: File) {
+export async function uploadFile(presigned: PresignedPost, file: File) {
 	const formData = new FormData();
 	for (const key in presigned.fields) {
 		formData.append(key, presigned.fields[key]);

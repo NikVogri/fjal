@@ -26,7 +26,7 @@ export default function TextView({ viewText }: { viewText: () => Promise<ServerA
 					<p className="mb-4">{error}</p>
 
 					<p className="text-center">
-						<Link href="/" className="text-indigo-500">
+						<Link href="/file" className="text-indigo-500">
 							Upload another file
 						</Link>{" "}
 						or{" "}

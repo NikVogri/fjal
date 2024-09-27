@@ -5,7 +5,7 @@ import ItemNotFound from "@/app/components/item-not-found";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home({ params }: { params: { fileId: string } }) {
+export default async function FilePage({ params }: { params: { fileId: string } }) {
 	const file = await db.file.findFirst({
 		where: {
 			id: params.fileId,

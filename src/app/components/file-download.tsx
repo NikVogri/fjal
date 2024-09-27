@@ -26,7 +26,7 @@ export default function DownloadFile({
 					<p className="mb-4">{error}</p>
 
 					<p className="text-center">
-						<Link href="/" className="text-indigo-500">
+						<Link href="/file" className="text-indigo-500">
 							Upload another file
 						</Link>{" "}
 						or{" "}
@@ -95,7 +95,7 @@ export default function DownloadFile({
 
 			<p className="text-center">
 				Go to{" "}
-				<Link href="/" className="text-indigo-500">
+				<Link href="/file" className="text-indigo-500">
 					file upload
 				</Link>{" "}
 				instead.

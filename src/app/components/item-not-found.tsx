@@ -17,7 +17,7 @@ export default function ItemNotFound({ type }: { type: "file" | "text" }) {
 					</p>
 				</div>
 				<p className="text-center">
-					<Link href="/" className="text-indigo-500">
+					<Link href="/file" className="text-indigo-500">
 						Upload file
 					</Link>{" "}
 					or{" "}
