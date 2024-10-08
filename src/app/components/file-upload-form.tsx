@@ -16,6 +16,7 @@ import { useAction } from "next-safe-action/hooks";
 import { generatePresignedUrl } from "../file/actions";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import posthog from "posthog-js";
 
 export default function FileUploadForm() {
 	const [error, setError] = useState<string | null>(null);
@@ -37,6 +38,8 @@ export default function FileUploadForm() {
 	});
 
 	const handleSubmit = async ({ file }: { file: File }) => {
+		posthog.capture("Fileupload");
+
 		try {
 			const res = await generatePresignedUrlAction({
 				fileName: file.name,

@@ -14,6 +14,7 @@ import { storeTextSchema } from "../schemas";
 import { z } from "zod";
 import { FormControl, FormDescription, FormField, FormItem, FormMessage, Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import posthog from "posthog-js";
 
 export default function TextForm() {
 	const { execute: storeTextAction, result, isPending, reset: resetAction } = useAction(storeText);
@@ -50,7 +51,12 @@ export default function TextForm() {
 			</h2>
 
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit((data) => storeTextAction(data))}>
+				<form
+					onSubmit={form.handleSubmit((data) => {
+						posthog.capture("Textsave");
+						storeTextAction(data);
+					})}
+				>
 					<FormField
 						control={form.control}
 						name="text"
