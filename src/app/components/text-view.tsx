@@ -6,8 +6,15 @@ import Card from "./UI/card";
 import { ServerActionResponse } from "@/models";
 import { TextIcon } from "./SVG/text";
 import { useCopyTimeout } from "../hooks/useCopyTimeout";
+import posthog from "posthog-js";
 
-export default function TextView({ viewText }: { viewText: () => Promise<ServerActionResponse> }) {
+export default function TextView({
+	viewText,
+	textId,
+}: {
+	textId: string;
+	viewText: () => Promise<ServerActionResponse>;
+}) {
 	const [viewed, setViewed] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	const [text, setText] = useState<string | null>(null);
@@ -72,7 +79,8 @@ export default function TextView({ viewText }: { viewText: () => Promise<ServerA
 							This text will be deleted after clicking the View now button.
 						</p>
 						<button
-							onClick={() =>
+							onClick={() => {
+								posthog.capture("Viewtext", { textId });
 								viewText().then(({ isError, data }) => {
 									if (isError) {
 										setError(data);
@@ -81,8 +89,8 @@ export default function TextView({ viewText }: { viewText: () => Promise<ServerA
 
 									setViewed(true);
 									setText(data);
-								})
-							}
+								});
+							}}
 							disabled={viewed}
 							className="py-2 w-full mx-auto text-white rounded bg-indigo-500 flex gap-3 justify-center disabled:opacity-50"
 						>

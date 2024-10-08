@@ -8,6 +8,7 @@ import { useState } from "react";
 import { File } from "@prisma/client";
 import Card from "./UI/card";
 import { ServerActionResponse } from "@/models";
+import posthog from "posthog-js";
 
 export default function DownloadFile({
 	file,
@@ -68,6 +69,8 @@ export default function DownloadFile({
 				<button
 					onClick={() =>
 						createDownloadUrlAndMarkFileForDeletion().then(({ isError, data }) => {
+							posthog.capture("Filedownload", { fileId: file.id });
+
 							if (isError) {
 								setError(data);
 								return;
