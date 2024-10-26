@@ -1,6 +1,5 @@
 "use server";
 
-import { ulid } from "ulid";
 import db from "@/core/db";
 import { checkRateLimitByIp } from "../helpers/check-ratelimit";
 import { headers } from "next/headers";
@@ -10,6 +9,7 @@ import { fileInfoSchema } from "../schemas";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import s3, { s3GetBucketSize } from "@/core/s3";
 import { _Object } from "@aws-sdk/client-s3";
+import { generateSimpleId } from "../helpers/id";
 
 export const generatePresignedUrl = actionClient
 	.schema(fileInfoSchema, {
@@ -38,7 +38,7 @@ export const generatePresignedUrl = actionClient
 		return next();
 	})
 	.action(async ({ parsedInput: { fileSize, fileName, fileType } }) => {
-		const s3ObjectKey = ulid();
+		const s3ObjectKey = generateSimpleId();
 		const file = await db.file.create({
 			data: {
 				id: s3ObjectKey,

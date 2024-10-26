@@ -1,6 +1,5 @@
 "use server";
 
-import { ulid } from "ulid";
 import { encrypt, generateIv } from "../helpers/encryption";
 import db from "@/core/db";
 import { checkRateLimitByIp } from "../helpers/check-ratelimit";
@@ -8,6 +7,7 @@ import { headers } from "next/headers";
 import { actionClient, ActionError } from "@/core/safe-action";
 import { flattenValidationErrors } from "next-safe-action";
 import { storeTextSchema } from "../schemas";
+import { generateSimpleId } from "../helpers/id";
 
 export const storeText = actionClient
 	.schema(storeTextSchema, {
@@ -30,7 +30,7 @@ export const storeText = actionClient
 		const iv = generateIv();
 		const encryptedText = encrypt(text, iv, process.env.TEXT_ENCRYPTION_SECRET_KEY!);
 
-		const id = ulid();
+		const id = generateSimpleId();
 
 		await db.text.create({
 			data: {
