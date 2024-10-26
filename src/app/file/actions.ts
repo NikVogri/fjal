@@ -8,7 +8,8 @@ import { actionClient, ActionError } from "@/core/safe-action";
 import { flattenValidationErrors } from "next-safe-action";
 import { fileInfoSchema } from "../schemas";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
-import s3 from "@/core/s3";
+import s3, { s3GetBucketSize } from "@/core/s3";
+import { _Object } from "@aws-sdk/client-s3";
 
 export const generatePresignedUrl = actionClient
 	.schema(fileInfoSchema, {
@@ -23,6 +24,15 @@ export const generatePresignedUrl = actionClient
 
 		if (ratelimitResponse.isError) {
 			throw new ActionError(ratelimitResponse.data);
+		}
+
+		return next();
+	})
+	.use(async ({ next }) => {
+		const bucketSize = await s3GetBucketSize();
+
+		if (bucketSize > parseInt(process.env.AWS_S3_MAX_PUBLIC_BUCKET_SIZE!)) {
+			throw new ActionError("Public storage is full. Please try again later.");
 		}
 
 		return next();
