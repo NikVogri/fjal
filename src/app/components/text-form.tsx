@@ -163,11 +163,14 @@ export default function TextForm() {
 				</form>
 			</Form>
 
-			<p className="text-gray-500 mt-4 text-xs">
-				<strong>
-					Before being stored, this text will be server-side encrypted using the latest encryption algorithm.
-				</strong>
-			</p>
+			{!useClientSideEncryption && (
+				<p className="text-gray-500 mt-4 text-xs">
+					<strong>
+						Before being stored, this text will be server-side encrypted using the latest encryption
+						algorithm.
+					</strong>
+				</p>
+			)}
 
 			<p className="italic text-gray-500 mt-4 text-xs">
 				<strong>Important:</strong> This is not a permanent text storage solution. The saved text is temporary
