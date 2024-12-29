@@ -1,6 +1,6 @@
 "use server";
 
-import { encrypt, generateIv } from "../helpers/encryption";
+import { encrypt, generateIv } from "../helpers/crypto";
 import db from "@/core/db";
 import { checkRateLimitByIp } from "../helpers/check-ratelimit";
 import { headers } from "next/headers";
@@ -26,9 +26,15 @@ export const storeText = actionClient
 
 		return next();
 	})
-	.action(async ({ parsedInput: { text } }) => {
+	.action(async ({ parsedInput: { text, clientSideEncryption } }) => {
 		const iv = generateIv();
-		const encryptedText = encrypt(text, iv, process.env.TEXT_ENCRYPTION_SECRET_KEY!);
+
+		let encryptedText: string;
+		if (clientSideEncryption) {
+			encryptedText = text; // no need to encrypt, it's already encrypted
+		} else {
+			encryptedText = encrypt(text, iv, process.env.TEXT_ENCRYPTION_SECRET_KEY!);
+		}
 
 		const id = generateSimpleId();
 
@@ -37,7 +43,8 @@ export const storeText = actionClient
 				id: id,
 				length: text.length,
 				text: encryptedText,
-				iv: iv.toString("hex"),
+				iv: clientSideEncryption ? undefined : iv.toString("hex"),
+				clientSideEncryption: clientSideEncryption,
 				expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
 			},
 		});

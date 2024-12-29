@@ -1,6 +1,5 @@
 "use client";
 
-import UploadProcessing from "./upload-processing";
 import UploadError from "./upload-error";
 import Card from "./UI/card";
 import { storeText } from "../text/actions";
@@ -10,19 +9,25 @@ import { useAction } from "next-safe-action/hooks";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { storeTextSchema } from "../schemas";
+import { storeTextFormSchema } from "../schemas";
 import { z } from "zod";
 import { FormControl, FormDescription, FormField, FormItem, FormMessage, Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import posthog from "posthog-js";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { encryptClient } from "../helpers/crypto-client";
+import LoaderWithFacts from "./loader-with-facts";
 
 export default function TextForm() {
 	const { execute: storeTextAction, result, isPending, reset: resetAction } = useAction(storeText);
 
-	const form = useForm<z.infer<typeof storeTextSchema>>({
-		resolver: zodResolver(storeTextSchema),
+	const form = useForm<z.infer<typeof storeTextFormSchema>>({
+		resolver: zodResolver(storeTextFormSchema),
 		defaultValues: {
 			text: "",
+			clientSideEncryption: false,
+			password: "",
 		},
 	});
 
@@ -31,8 +36,10 @@ export default function TextForm() {
 		resetAction();
 	};
 
+	const useClientSideEncryption = form.watch("clientSideEncryption");
+
 	if (isPending) {
-		return <UploadProcessing type="text" />;
+		return <LoaderWithFacts action="upload" type="text" />;
 	}
 
 	if (result.data) {
@@ -52,9 +59,20 @@ export default function TextForm() {
 
 			<Form {...form}>
 				<form
-					onSubmit={form.handleSubmit((data) => {
+					onSubmit={form.handleSubmit(async (data) => {
+						if (useClientSideEncryption && !!data.password) {
+							storeTextAction({
+								text: await encryptClient(data.text, data.password),
+								clientSideEncryption: true,
+							});
+						} else {
+							storeTextAction({
+								text: data.text,
+								clientSideEncryption: false,
+							});
+						}
+
 						posthog.capture("Textsave");
-						storeTextAction(data);
 					})}
 				>
 					<FormField
@@ -80,6 +98,60 @@ export default function TextForm() {
 							</FormItem>
 						)}
 					/>
+
+					<FormField
+						control={form.control}
+						name="clientSideEncryption"
+						render={({ field }) => (
+							<FormItem>
+								<FormControl>
+									<div className="flex align-center gap-2 mb-4">
+										<div>
+											<Checkbox
+												checked={field.value}
+												onCheckedChange={(checked) => {
+													form.resetField("password");
+													field.onChange(checked);
+												}}
+												id="custom-password"
+											/>
+										</div>
+										<label htmlFor="custom-password">Use client-side encryption (password)</label>
+									</div>
+								</FormControl>
+							</FormItem>
+						)}
+					/>
+
+					{useClientSideEncryption && (
+						<FormField
+							control={form.control}
+							rules={{ required: true }}
+							name="password"
+							render={({ field }) => (
+								<FormItem>
+									<FormMessage />
+									<FormControl>
+										<Input
+											{...field}
+											className={`block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500`}
+											placeholder="SuperSecretPassword"
+											maxLength={parseInt(process.env.NEXT_PUBLIC_MAX_TEXT_LENGTH!)}
+											type="password"
+										/>
+									</FormControl>
+									<FormDescription>
+										Encrypt text using a custom password. To read the text, the same password will
+										be required.
+										<span className="text-xs italic mb-4 mt-2 text-gray-400 text-right block">
+											{field.value?.length ?? 0}/
+											{process.env.NEXT_PUBLIC_MAX_TEXT_PASSWORD_LENGTH}
+										</span>
+									</FormDescription>
+								</FormItem>
+							)}
+						/>
+					)}
 
 					<Button
 						type="submit"

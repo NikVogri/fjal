@@ -10,7 +10,7 @@ import { Form, FormField, FormItem, FormMessage, FormControl, FormDescription, F
 import { formatFileSize } from "../helpers/file-size";
 import { useEffect, useState } from "react";
 import UploadDone from "./upload-done";
-import UploadProcessing from "./upload-processing";
+import LoaderWithFacts from "./loader-with-facts";
 import UploadError from "./upload-error";
 import { useAction } from "next-safe-action/hooks";
 import { generatePresignedUrl } from "../file/actions";
@@ -82,7 +82,7 @@ export default function FileUploadForm() {
 	}
 
 	if (form.formState.isSubmitting) {
-		return <UploadProcessing type="file" />;
+		return <LoaderWithFacts action="upload" type="file" />;
 	}
 
 	return (

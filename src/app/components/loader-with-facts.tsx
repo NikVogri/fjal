@@ -31,16 +31,28 @@ function getRandomFact() {
 	return facts[factIdx];
 }
 
-const text: Record<UploadProcessingProps["type"], string> = {
-	file: "Your file is being uploaded!",
-	text: "Your text is being encrypted and stored!",
-};
-
-interface UploadProcessingProps {
-	type: "file" | "text";
+interface DefaultCopy {
+	upload: Record<LoadingProps["type"], string>;
+	read: Record<LoadingProps["type"], string>;
 }
 
-export default function UploadProcessing({ type }: UploadProcessingProps) {
+const defaultCopy: DefaultCopy = {
+	upload: {
+		file: "Your file is being uploaded!",
+		text: "Your text is being encrypted and stored!",
+	},
+	read: {
+		file: "Your file is being fetched!",
+		text: "Your text is being fetched and decrypted!",
+	},
+};
+
+interface LoadingProps {
+	type: "file" | "text";
+	action: keyof DefaultCopy;
+}
+
+export default function LoaderWithFacts({ type, action }: LoadingProps) {
 	const [fact, setFact] = useState(getRandomFact());
 
 	useEffect(() => {
@@ -50,7 +62,7 @@ export default function UploadProcessing({ type }: UploadProcessingProps) {
 
 	return (
 		<Card>
-			<h1 className="text-2xl text-center font-bold text-indigo-500">{text[type]}</h1>
+			<h1 className="text-2xl text-center font-bold text-indigo-500">{defaultCopy[action][type]}</h1>
 
 			<div className="my-8 text-center">
 				<div
