@@ -1,5 +1,4 @@
 import db from "@/core/db";
-import { viewText } from "./actions";
 import TextView from "@/app/components/text-view";
 import ItemNotFound from "@/app/components/item-not-found";
 
@@ -21,7 +20,7 @@ export default async function Home({ params }: { params: { textId: string } }) {
 
 	return (
 		<div className="h-screen w-full flex flex-col items-center justify-center">
-			<TextView viewText={viewText.bind(null, { textId: text.id })} textId={text.id} />
+			<TextView textId={text.id} isClientSideEncrypted={text.clientSideEncryption} />
 		</div>
 	);
 }

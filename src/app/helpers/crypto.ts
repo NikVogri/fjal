@@ -21,3 +21,20 @@ export function decrypt(value: string, iv: string, key: string): string {
 
 	return decrypted;
 }
+
+export function decryptVerificationWithPBKDF(encrypted: string, password: string): void {
+	// @ts-ignore-next-line
+	const encryptedBuff = Uint8Array.from(atob(encrypted), (c) => c.charCodeAt(null));
+
+	const salt = encryptedBuff.slice(0, 16);
+	const iv = encryptedBuff.slice(16, 16 + 16);
+	const data = encryptedBuff.slice(16 + 16);
+
+	const key = crypto.pbkdf2Sync(password, salt, 250000, 32, "SHA-256");
+
+	// @ts-ignore-next-line
+	const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
+	// @ts-ignore-next-line
+	decipher.update(data, null, "utf8");
+	decipher.final("utf8");
+}

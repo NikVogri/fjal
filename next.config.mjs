@@ -19,6 +19,7 @@ z.object({
 	NEXT_PUBLIC_MAX_FILE_SIZE: z.string().min(1),
 	NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1),
 	NEXT_PUBLIC_POSTHOG_HOST: z.string().min(1),
+	NEXT_PUBLIC_MAX_TEXT_PASSWORD_LENGTH: z.string().min(1),
 }).parse(process.env);
 
 /** @type {import('next').NextConfig} */
