@@ -13,7 +13,7 @@ import { generateSimpleId } from "../helpers/id";
 
 export const generatePresignedUrl = actionClient
 	.schema(fileInfoSchema, {
-		handleValidationErrorsShape: (ve) => flattenValidationErrors(ve).fieldErrors,
+		handleValidationErrorsShape: async (ve) => flattenValidationErrors(ve).fieldErrors,
 	})
 	.use(async ({ next }) => {
 		const ratelimitResponse = await checkRateLimitByIp({
