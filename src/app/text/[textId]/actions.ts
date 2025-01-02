@@ -9,7 +9,7 @@ import { flattenValidationErrors } from "next-safe-action";
 
 export const getText = actionClient
 	.schema(readTextSchema, {
-		handleValidationErrorsShape: (ve) => flattenValidationErrors(ve).fieldErrors,
+		handleValidationErrorsShape: async (ve) => flattenValidationErrors(ve).fieldErrors,
 	})
 	.use(async ({ next }) => {
 		const ratelimitResponse = await checkRateLimitByIp({
