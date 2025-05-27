@@ -11,12 +11,21 @@ export const checkRateLimitByIp = async ({
 	action: "upload" | "download";
 }): Promise<ServerActionResponse> => {
 	const id = (ip ?? "127.0.0.1") + `-${type}-${action}`;
-	const { success } = await getRateLimiter(type).limit(id);
+	try {
+		const { success } = await getRateLimiter(type).limit(id);
 
-	if (success) {
+		if (success) {
+			return {
+				isError: false,
+				data: "",
+			};
+		}
+	} catch (error) {
+		console.error("Rate limit check failed:", error);
+
 		return {
-			isError: false,
-			data: "",
+			data: "Something went wrong. Please try again later.",
+			isError: true,
 		};
 	}
 
