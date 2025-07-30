@@ -1,12 +1,12 @@
 {
 	"crons": [
 		{
-			"path": "/api/cron/file-expires",
+			"path": "/api/cron/clear-expires",
 			"schedule": "0 10 * * *"
 		},
 		{
-			"path": "/api/cron/text-expires",
-			"schedule": "0 10 * * *"
+			"path": "/api/cron/ping-redis-db",
+			"schedule": "0 */8 * * *"
 		}
 	]
 }
