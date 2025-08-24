@@ -8,8 +8,8 @@ export async function GET(req: Request) {
 	}
 
 	try {
-		await kv.ping(["hello"]);
+		await kv.set("keepalive", Date.now());
 	} catch (error) {
-		console.error("Unable to ping database", error);
+		console.error("Unable to set keepalive", error);
 	}
 }
