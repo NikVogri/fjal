@@ -11,19 +11,19 @@ export const getText = actionClient
 	.schema(readTextSchema, {
 		handleValidationErrorsShape: async (ve) => flattenValidationErrors(ve).fieldErrors,
 	})
-	// .use(async ({ next }) => {
-	// 	const ratelimitResponse = await checkRateLimitByIp({
-	// 		ip: headers().get("x-forwarded-for")!,
-	// 		type: "text",
-	// 		action: "download",
-	// 	});
+	.use(async ({ next }) => {
+		const ratelimitResponse = await checkRateLimitByIp({
+			ip: headers().get("x-forwarded-for")!,
+			type: "text",
+			action: "download",
+		});
 
-	// 	if (ratelimitResponse.isError) {
-	// 		throw new ActionError(ratelimitResponse.data);
-	// 	}
+		if (ratelimitResponse.isError) {
+			throw new ActionError(ratelimitResponse.data);
+		}
 
-	// 	return next();
-	// })
+		return next();
+	})
 	.action(async ({ parsedInput: { textId, clientKeyHash } }): Promise<{ isError: boolean; data: string }> => {
 		console.log('H"ERER');
 		const text = await db.text.findFirst({

@@ -13,19 +13,19 @@ export const storeText = actionClient
 	.schema(storeTextSchema, {
 		handleValidationErrorsShape: async (ve) => flattenValidationErrors(ve).fieldErrors,
 	})
-	// .use(async ({ next }) => {
-	// 	const ratelimitResponse = await checkRateLimitByIp({
-	// 		ip: headers().get("x-forwarded-for")!,
-	// 		type: "text",
-	// 		action: "upload",
-	// 	});
+	.use(async ({ next }) => {
+		const ratelimitResponse = await checkRateLimitByIp({
+			ip: headers().get("x-forwarded-for")!,
+			type: "text",
+			action: "upload",
+		});
 
-	// 	if (ratelimitResponse.isError) {
-	// 		throw new ActionError(ratelimitResponse.data);
-	// 	}
+		if (ratelimitResponse.isError) {
+			throw new ActionError(ratelimitResponse.data);
+		}
 
-	// 	return next();
-	// })
+		return next();
+	})
 	.action(async ({ parsedInput: { text, clientSideEncryption, clientKeyHash } }) => {
 		const iv = generateIv();
 
