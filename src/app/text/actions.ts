@@ -13,20 +13,20 @@ export const storeText = actionClient
 	.schema(storeTextSchema, {
 		handleValidationErrorsShape: async (ve) => flattenValidationErrors(ve).fieldErrors,
 	})
-	.use(async ({ next }) => {
-		const ratelimitResponse = await checkRateLimitByIp({
-			ip: headers().get("x-forwarded-for")!,
-			type: "text",
-			action: "upload",
-		});
+	// .use(async ({ next }) => {
+	// 	const ratelimitResponse = await checkRateLimitByIp({
+	// 		ip: headers().get("x-forwarded-for")!,
+	// 		type: "text",
+	// 		action: "upload",
+	// 	});
 
-		if (ratelimitResponse.isError) {
-			throw new ActionError(ratelimitResponse.data);
-		}
+	// 	if (ratelimitResponse.isError) {
+	// 		throw new ActionError(ratelimitResponse.data);
+	// 	}
 
-		return next();
-	})
-	.action(async ({ parsedInput: { text, clientSideEncryption } }) => {
+	// 	return next();
+	// })
+	.action(async ({ parsedInput: { text, clientSideEncryption, clientKeyHash } }) => {
 		const iv = generateIv();
 
 		let encryptedText: string;
@@ -46,6 +46,7 @@ export const storeText = actionClient
 				iv: clientSideEncryption ? undefined : iv.toString("hex"),
 				clientSideEncryption: clientSideEncryption,
 				expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+				clientKeyHash: clientKeyHash,
 			},
 		});
 

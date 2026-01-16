@@ -6,7 +6,8 @@
 		"dev": "next dev",
 		"build": "prisma generate && prisma migrate deploy && next build",
 		"start": "next start",
-		"lint": "next lint"
+		"lint": "next lint",
+		"prisma:generate": "prisma generate dev --name text_add_client_key_hash"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.637.0",

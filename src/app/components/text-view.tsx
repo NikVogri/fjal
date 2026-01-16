@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { readTextSchema } from "../schemas";
-import { decryptClient } from "../helpers/crypto-client";
+import { decryptClient, hashPassword } from "../helpers/crypto-client";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { getText } from "../text/[textId]/actions";
@@ -137,12 +137,13 @@ export default function TextView({
 
 								const res = await getText({
 									textId,
-									password,
 									clientSideEncryption: isClientSideEncrypted,
+									clientKeyHash: password && (await hashPassword(password)),
 								});
 								if (!res?.data) return;
 
 								const { data, isError } = res.data;
+								console.log("EREROR")
 
 								if (isError) {
 									setError(data);
@@ -151,7 +152,11 @@ export default function TextView({
 
 								let text = data;
 								if (isClientSideEncrypted && password) {
-									text = await decryptClient(data, password);
+									try {
+										text = await decryptClient(data, password);
+									} catch (error) {
+										console.log("error", error);
+									}
 								}
 
 								setViewed(true);

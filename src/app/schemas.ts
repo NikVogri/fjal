@@ -11,7 +11,7 @@ export const fileInfoSchema = z.object({
 		.positive()
 		.max(parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!), {
 			message: `File size is too large! Please make sure the file is under ${formatFileSize(
-				parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!)
+				parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!),
 			)}!`,
 		}),
 	fileType: z
@@ -34,6 +34,7 @@ export const storeTextSchema = z.object({
 			message: `Text must be shorter than ${process.env.NEXT_PUBLIC_MAX_TEXT_LENGTH} characters.`,
 		}),
 	clientSideEncryption: z.boolean(),
+	clientKeyHash: z.string().optional(),
 });
 
 const textPasswordSchema = z
@@ -63,22 +64,23 @@ export const storeTextFormSchema = z
 
 			return true;
 		},
-		{ message: "Password is required when using client-side encryption." }
+		{ message: "Password is required when using client-side encryption." },
 	);
 
 export const readTextSchema = z
 	.object({
 		textId: z.string().min(1),
 		clientSideEncryption: z.boolean(),
-		password: textPasswordSchema.optional(),
+		password: textPasswordSchema.optional(), // FE only
+		clientKeyHash: z.string().optional(),
 	})
 	.refine(
 		(data) => {
-			if (data.clientSideEncryption && !data.password) {
+			if (data.clientSideEncryption && !data.password && !data.clientKeyHash) {
 				return false;
 			}
 
 			return true;
 		},
-		{ message: "Password is required for reading client-side encrypted text." }
+		{ message: "Password is required for reading client-side encrypted text." },
 	);

@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import posthog from "posthog-js";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { encryptClient } from "../helpers/crypto-client";
+import { encryptClient, hashPassword } from "../helpers/crypto-client";
 import LoaderWithFacts from "./loader-with-facts";
 
 export default function TextForm() {
@@ -61,9 +61,11 @@ export default function TextForm() {
 				<form
 					onSubmit={form.handleSubmit(async (data) => {
 						if (useClientSideEncryption && !!data.password) {
+							const ciphertext = await encryptClient(data.text, data.password);
 							storeTextAction({
-								text: await encryptClient(data.text, data.password),
+								text: ciphertext,
 								clientSideEncryption: true,
+								clientKeyHash: data.password && (await hashPassword(data.password)),
 							});
 						} else {
 							storeTextAction({
