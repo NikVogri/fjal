@@ -1,28 +1,43 @@
 const IV_BYTE_SIZE = 16;
 const SALT_BYTE_SIZE = 16;
-const ALGO_NAME = "AES-CBC";
+const ALGO_NAME = "AES-GCM";
+
+const KEY_ITERATIONS_COUNT = 300000;
+const KEY_ALGO_NAME = "PBKDF2";
+
+const KEY_HASH_ALGO = "SHA-256";
+
 export function checkCryptoAvailability() {
 	if (!window.crypto?.subtle) {
 		throw new Error("Web Crypto API not available in this browser");
 	}
 }
 
+export async function hashPassword(password: string): Promise<string> {
+	const encoded = new TextEncoder().encode(password);
+
+	const keyHash = await window.crypto.subtle.digest(KEY_HASH_ALGO, encoded);
+
+	// @ts-ignore-next-line
+	return btoa(String.fromCharCode.apply(null, new Uint8Array(keyHash)));
+}
+
 async function deriveKey(password: string, salt: BufferSource, keyUsages: KeyUsage[]): Promise<CryptoKey> {
 	const encodedPassword = new TextEncoder().encode(password);
 
-	const key = await window.crypto.subtle.importKey("raw", encodedPassword, "PBKDF2", false, ["deriveKey"]);
+	const key = await window.crypto.subtle.importKey("raw", encodedPassword, KEY_ALGO_NAME, false, ["deriveKey"]);
 
 	const derivedKey = await window.crypto.subtle.deriveKey(
 		{
-			name: "PBKDF2",
-			iterations: 250000,
+			name: KEY_ALGO_NAME,
+			iterations: KEY_ITERATIONS_COUNT,
 			hash: "SHA-256",
 			salt: salt,
 		},
 		key,
 		{ name: ALGO_NAME, length: 256 },
 		false,
-		keyUsages
+		keyUsages,
 	);
 
 	return derivedKey;
@@ -43,7 +58,7 @@ export async function encryptClient(text: string, password: string): Promise<str
 			iv: iv,
 		},
 		derivedKey,
-		encoded
+		encoded,
 	);
 
 	const dataBuff = new Uint8Array(salt.byteLength + iv.byteLength + encryptedBuff.byteLength);
@@ -73,7 +88,7 @@ export async function decryptClient(encrypted: string, password: string): Promis
 			iv: iv,
 		},
 		derivedKey,
-		data
+		data,
 	);
 
 	return new TextDecoder().decode(decryptedContent);

@@ -26,7 +26,7 @@ export const storeText = actionClient
 
 		return next();
 	})
-	.action(async ({ parsedInput: { text, clientSideEncryption } }) => {
+	.action(async ({ parsedInput: { text, clientSideEncryption, clientKeyHash } }) => {
 		const iv = generateIv();
 
 		let encryptedText: string;
@@ -46,6 +46,7 @@ export const storeText = actionClient
 				iv: clientSideEncryption ? undefined : iv.toString("hex"),
 				clientSideEncryption: clientSideEncryption,
 				expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+				clientKeyHash: clientKeyHash,
 			},
 		});
 

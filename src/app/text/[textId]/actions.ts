@@ -24,7 +24,8 @@ export const getText = actionClient
 
 		return next();
 	})
-	.action(async ({ parsedInput: { textId, password } }): Promise<{ isError: boolean; data: string }> => {
+	.action(async ({ parsedInput: { textId, clientKeyHash } }): Promise<{ isError: boolean; data: string }> => {
+		console.log('H"ERER');
 		const text = await db.text.findFirst({
 			where: {
 				id: textId,
@@ -41,28 +42,27 @@ export const getText = actionClient
 			};
 		}
 
-		let decryptedText: string;
+		let outputText: string;
 		if (text.clientSideEncryption) {
-			try {
-				decryptVerificationWithPBKDF(text.text, password ?? "");
-				decryptedText = text.text;
-			} catch (error: any) {
-				if (error.code === "ERR_OSSL_BAD_DECRYPT") {
-					return {
-						data: "Incorrect password.",
-						isError: true,
-					};
-				}
-
-				console.error(error);
+			if (!clientKeyHash) {
+				// Client must compute and provide the clientKeyHash to verify they have the correct key.
 				return {
-					data: "Something went wrong. Please try again later.",
+					data: "Please enter password.",
 					isError: true,
 				};
 			}
+
+			if (clientKeyHash !== text.clientKeyHash) {
+				return {
+					data: "Incorrect password.",
+					isError: true,
+				};
+			}
+
+			outputText = text.text;
 		} else {
 			try {
-				decryptedText = decrypt(text.text, text.iv!, process.env.TEXT_ENCRYPTION_SECRET_KEY!);
+				outputText = decrypt(text.text, text.iv!, process.env.TEXT_ENCRYPTION_SECRET_KEY!);
 			} catch (error) {
 				console.error(error);
 
@@ -83,7 +83,7 @@ export const getText = actionClient
 		});
 
 		return {
-			data: decryptedText,
+			data: outputText,
 			isError: false,
 		};
 	});
