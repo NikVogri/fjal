@@ -11,14 +11,17 @@ import { fileDownloadSchema } from "@/app/schemas";
 import { z } from "zod";
 
 export const createDownloadUrlAndMarkFileForDeletion = async (
-	payload: z.infer<typeof fileDownloadSchema>
+	payload: z.infer<typeof fileDownloadSchema>,
 ): Promise<ServerActionResponse> => {
-	const ratelimitResponse = await checkRateLimitByIp({
-		ip: headers().get("x-forwarded-for")!,
-		type: "file",
-		action: "download",
-	});
-	if (ratelimitResponse.isError) return ratelimitResponse;
+	if (process.env.NODE_ENV !== "development") {
+		const ratelimitResponse = await checkRateLimitByIp({
+			ip: headers().get("x-forwarded-for")!,
+			type: "file",
+			action: "download",
+		});
+
+		if (ratelimitResponse.isError) return ratelimitResponse;
+	}
 
 	const { success, data } = fileDownloadSchema.safeParse(payload);
 	if (!success) {
@@ -34,7 +37,7 @@ export const createDownloadUrlAndMarkFileForDeletion = async (
 			new GetObjectCommand({
 				Bucket: process.env.AWS_S3_BUCKET!,
 				Key: data.id,
-			})
+			}),
 		);
 
 		// TODO: consider removing the DB record when object does not exist

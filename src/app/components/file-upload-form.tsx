@@ -17,6 +17,7 @@ import { generatePresignedUrl } from "../file/actions";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import posthog from "posthog-js";
+import { useDropzone } from "react-dropzone";
 
 export default function FileUploadForm() {
 	const [error, setError] = useState<string | null>(null);
@@ -30,11 +31,18 @@ export default function FileUploadForm() {
 					.instanceof(File)
 					.refine((file) => file.size <= parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!), {
 						message: `File size is too large! Please make sure the file is under ${formatFileSize(
-							parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!)
+							parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!),
 						)}!`,
 					}),
-			})
+			}),
 		),
+	});
+
+	const { getRootProps, getInputProps, isDragActive } = useDropzone({
+		onDrop: (files: File[]) => {
+			if (!files[0]) return;
+			form.setValue("file", files[0]);
+		},
 	});
 
 	const handleSubmit = async ({ file }: { file: File }) => {
@@ -96,24 +104,50 @@ export default function FileUploadForm() {
 						name="file"
 						control={form.control}
 						render={({ field: { value, onChange, ...fieldProps } }) => (
-							<>
+							<div {...getRootProps()}>
 								{!form.formState.isValid && (
 									<FormItem>
 										<FormMessage />
-										<FormLabel className="bg-indigo-500 text-white w-full py-3 rounded disabled:opacity-30 disabled:cursor-default flex justify-center gap-3 mx-auto cursor-pointer">
-											Select File
-										</FormLabel>
 										<FormControl>
-											<input
-												{...fieldProps}
-												type="file"
-												className="w-full border border-solid rounded border-indigo-800 p-2 mb-4"
-												hidden
-												onChange={(event) =>
-													onChange(event.target.files && event.target.files[0])
-												}
-											/>
+											<div>
+												<input
+													{...getInputProps}
+													{...fieldProps}
+													type="file"
+													id="file-upload"
+													className="w-full border border-solid rounded border-indigo-800 p-2 mb-4"
+													hidden
+													onChange={(event) =>
+														onChange(event.target.files && event.target.files[0])
+													}
+												/>
+
+												{isDragActive ? (
+													<div
+														className={`rounded border-solid border p-4 ${isDragActive ? "border-indigo-500 opacity-100" : "border-gray-500 opacity-40"}`}
+													>
+														<div className="flex justify-center pb-3  animate-wiggle [animation-duration:5s]">
+															<UploadIcon
+																color={`${isDragActive ? "#6366f1" : "#6b7280"}`}
+															/>
+														</div>
+														<p
+															className={`text-md text-center ${isDragActive ? "text-indigo-500" : "text-gray-500"}`}
+														>
+															Drop File Here
+														</p>
+													</div>
+												) : (
+													<FormLabel
+														className="bg-indigo-500 text-white w-full py-3 rounded disabled:opacity-30 disabled:cursor-default flex justify-center gap-3 mx-auto cursor-pointer"
+														htmlFor="file-upload"
+													>
+														Select File
+													</FormLabel>
+												)}
+											</div>
 										</FormControl>
+
 										<FormDescription>
 											Max size: {formatFileSize(parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!))}
 										</FormDescription>
@@ -147,7 +181,7 @@ export default function FileUploadForm() {
 										</button>
 									</div>
 								)}
-							</>
+							</div>
 						)}
 					/>
 
