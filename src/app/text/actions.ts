@@ -14,6 +14,10 @@ export const storeText = actionClient
 		handleValidationErrorsShape: async (ve) => flattenValidationErrors(ve).fieldErrors,
 	})
 	.use(async ({ next }) => {
+		if (process.env.NODE_ENV === "development") {
+			return next();
+		}
+
 		const ratelimitResponse = await checkRateLimitByIp({
 			ip: headers().get("x-forwarded-for")!,
 			type: "text",
