@@ -9,7 +9,7 @@ export default function Logo() {
 					<Image src={"/logo.png"} height={30} width={30} alt="Fjal logo" />
 				</div>
 				<div className="flex flex-col">
-					<span className="font-bold text-lg md:text-2xl text-gray-600">Fjal.xyz</span>
+					<span className="font-bold text-lg md:text-2xl text-gray-600">Fjal</span>
 					<span className="font-normal text-sm md:text-base text-gray-700">Made by Nik Vogrinec</span>
 				</div>
 			</div>
