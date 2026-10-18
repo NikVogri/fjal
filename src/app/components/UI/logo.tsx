@@ -5,7 +5,7 @@ export default function Logo() {
 	return (
 		<Link href="/">
 			<div className="flex flex-row gap-2 md:gap-4 items-center absolute top-4 left-4 md:top-8 md:left-8 ">
-				<div className="rounded-lg bg-indigo-500 h-10 w-10 md:h-12 md:w-12 flex items-center justify-center shadow">
+				<div className="rounded-lg bg-indigo-500 h-10 w-10 md:h-12 md:w-12 flex items-center justify-center shadow-sm">
 					<Image src={"/logo.png"} height={30} width={30} alt="Fjal logo" />
 				</div>
 				<div className="flex flex-col">

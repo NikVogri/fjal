@@ -15,7 +15,7 @@ export const createDownloadUrlAndMarkFileForDeletion = async (
 ): Promise<ServerActionResponse> => {
 	if (process.env.NODE_ENV !== "development") {
 		const ratelimitResponse = await checkRateLimitByIp({
-			ip: headers().get("x-forwarded-for")!,
+			ip: (await headers()).get("x-forwarded-for")!,
 			type: "file",
 			action: "download",
 		});

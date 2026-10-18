@@ -5,10 +5,11 @@ import ItemNotFound from "@/app/components/item-not-found";
 
 export const dynamic = "force-dynamic";
 
-export default async function FilePage({ params }: { params: { fileId: string } }) {
+export default async function FilePage({ params }: { params: Promise<{ fileId: string }> }) {
+	const { fileId } = await params;
 	const file = await db.file.findFirst({
 		where: {
-			id: params.fileId,
+			id: fileId,
 			expiresAt: {
 				gt: new Date(),
 			},

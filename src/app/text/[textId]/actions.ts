@@ -8,7 +8,7 @@ import { actionClient, ActionError } from "@/core/safe-action";
 import { flattenValidationErrors } from "next-safe-action";
 
 export const getText = actionClient
-	.schema(readTextSchema, {
+	.inputSchema(readTextSchema, {
 		handleValidationErrorsShape: async (ve) => flattenValidationErrors(ve).fieldErrors,
 	})
 	.use(async ({ next }) => {
@@ -17,7 +17,7 @@ export const getText = actionClient
 		}
 
 		const ratelimitResponse = await checkRateLimitByIp({
-			ip: headers().get("x-forwarded-for")!,
+			ip: (await headers()).get("x-forwarded-for")!,
 			type: "text",
 			action: "download",
 		});

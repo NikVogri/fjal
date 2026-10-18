@@ -10,7 +10,7 @@ import { storeTextSchema } from "../schemas";
 import { generateSimpleId } from "../helpers/id";
 
 export const storeText = actionClient
-	.schema(storeTextSchema, {
+	.inputSchema(storeTextSchema, {
 		handleValidationErrorsShape: async (ve) => flattenValidationErrors(ve).fieldErrors,
 	})
 	.use(async ({ next }) => {
@@ -19,7 +19,7 @@ export const storeText = actionClient
 		}
 
 		const ratelimitResponse = await checkRateLimitByIp({
-			ip: headers().get("x-forwarded-for")!,
+			ip: (await headers()).get("x-forwarded-for")!,
 			type: "text",
 			action: "upload",
 		});

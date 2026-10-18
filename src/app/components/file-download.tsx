@@ -5,7 +5,7 @@ import { formatFileSize } from "../helpers/file-size";
 import { DocumentIcon } from "./SVG/document";
 import { DownloadIcon } from "./SVG/download";
 import { useState } from "react";
-import { File } from "@prisma/client";
+import type { File } from "@/generated/prisma/browser";
 import Card from "./UI/card";
 import { ServerActionResponse } from "@/models";
 import posthog from "posthog-js";
