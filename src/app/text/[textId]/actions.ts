@@ -29,7 +29,6 @@ export const getText = actionClient
 		return next();
 	})
 	.action(async ({ parsedInput: { textId, clientKeyHash } }): Promise<{ isError: boolean; data: string }> => {
-		console.log('H"ERER');
 		const text = await db.text.findFirst({
 			where: {
 				id: textId,

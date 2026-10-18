@@ -143,7 +143,6 @@ export default function TextView({
 								if (!res?.data) return;
 
 								const { data, isError } = res.data;
-								console.log("EREROR")
 
 								if (isError) {
 									setError(data);

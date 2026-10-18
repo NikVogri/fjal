@@ -1,13 +1,13 @@
 import { Ratelimit } from "@upstash/ratelimit";
-import { kv } from "@vercel/kv";
+import redis from "./redis";
 
 export const fileRatelimiter = new Ratelimit({
-	redis: kv,
+	redis,
 	limiter: Ratelimit.fixedWindow(parseInt(process.env.FILE_RATE_LIMIT!), "1 d"),
 });
 
 export const textRatelimiter = new Ratelimit({
-	redis: kv,
+	redis,
 	limiter: Ratelimit.fixedWindow(parseInt(process.env.TEXT_RATE_LIMIT!), "1 d"),
 });
 
