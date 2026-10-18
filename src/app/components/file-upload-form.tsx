@@ -18,6 +18,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import posthog from "posthog-js";
 import { useDropzone } from "react-dropzone";
+import { fromEvent } from "file-selector";
+import { COMMON_MIME_TYPES } from "file-selector/mime";
 
 export default function FileUploadForm() {
 	const [error, setError] = useState<string | null>(null);
@@ -30,7 +32,7 @@ export default function FileUploadForm() {
 				file: z
 					.instanceof(File)
 					.refine((file) => file.size <= parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!), {
-						message: `File size is too large! Please make sure the file is under ${formatFileSize(
+						error: `File size is too large! Please make sure the file is under ${formatFileSize(
 							parseInt(process.env.NEXT_PUBLIC_MAX_FILE_SIZE!),
 						)}!`,
 					}),
@@ -39,6 +41,8 @@ export default function FileUploadForm() {
 	});
 
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
+		// Fill in the file type from the extension when the browser leaves it empty
+		getFilesFromEvent: (event) => fromEvent(event, { mimeTypes: COMMON_MIME_TYPES }),
 		onDrop: (files: File[]) => {
 			if (!files[0]) return;
 			form.setValue("file", files[0]);

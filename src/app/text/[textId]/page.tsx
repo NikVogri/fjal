@@ -4,10 +4,11 @@ import ItemNotFound from "@/app/components/item-not-found";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home({ params }: { params: { textId: string } }) {
+export default async function Home({ params }: { params: Promise<{ textId: string }> }) {
+	const { textId } = await params;
 	const text = await db.text.findFirst({
 		where: {
-			id: params.textId,
+			id: textId,
 			expiresAt: {
 				gt: new Date(),
 			},

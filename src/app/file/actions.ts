@@ -12,7 +12,7 @@ import { _Object } from "@aws-sdk/client-s3";
 import { generateSimpleId } from "../helpers/id";
 
 export const generatePresignedUrl = actionClient
-	.schema(fileInfoSchema, {
+	.inputSchema(fileInfoSchema, {
 		handleValidationErrorsShape: async (ve) => flattenValidationErrors(ve).fieldErrors,
 	})
 	.use(async ({ next }) => {
@@ -21,7 +21,7 @@ export const generatePresignedUrl = actionClient
 		}
 
 		const ratelimitResponse = await checkRateLimitByIp({
-			ip: headers().get("x-forwarded-for")!,
+			ip: (await headers()).get("x-forwarded-for")!,
 			type: "file",
 			action: "upload",
 		});

@@ -1,5 +1,5 @@
 import { checkVercelCronAuth } from "@/app/helpers/cron/auth";
-import { kv } from "@vercel/kv";
+import redis from "@/core/redis";
 
 export async function GET(req: Request) {
 	const isAuthed = checkVercelCronAuth(req);
@@ -8,8 +8,10 @@ export async function GET(req: Request) {
 	}
 
 	try {
-		await kv.set("keepalive", Date.now());
+		await redis.set("keepalive", Date.now());
+		return Response.json(null, { status: 200 });
 	} catch (error) {
 		console.error("Unable to set keepalive", error);
+		return Response.json(null, { status: 500 });
 	}
 }
